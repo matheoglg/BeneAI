@@ -1,0 +1,130 @@
+/* BeneAI Premium Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #00f2ff;
+    --secondary-color: #0066ff;
+    --bg-dark: #0a0e14;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+}
+
+/* Base styles */
+.stApp {
+    background-color: var(--bg-dark);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Header */
+.custom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(10, 14, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00f2ff, #0066ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Chat Container */
+.chat-container {
+    padding: 2rem;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+    padding: 1rem;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    max-width: 80%;
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-bubble {
+    background: var(--secondary-color);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+}
+
+.ai-bubble {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    color: white;
+    margin-right: auto;
+    border-bottom-left-radius: 2px;
+    backdrop-filter: blur(5px);
+}
+
+/* Recommended Action Card */
+.recommendation-card {
+    background: rgba(255, 50, 50, 0.1);
+    border-left: 4px solid #ff4b4b;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin: 1rem 0;
+}
+
+.urgency-badge {
+    background: #ff4b4b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Map Panel */
+.map-panel {
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    border-left: 1px solid var(--glass-border);
+    position: relative;
+}
+
+.map-overlay {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+}
+
+/* Sidebar Customization */
+[data-testid="stSidebar"] {
+    background-color: #0d1117;
+    border-right: 1px solid var(--glass-border);
+}
+
+/* Hide default Streamlit elements */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}

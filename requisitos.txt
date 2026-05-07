@@ -1,0 +1,10 @@
+streamlit
+google-generativeai
+langchain-google-genai
+python-dotenv
+streamlit_folium
+pandas
+folium
+pyarrow
+numpy
+markdown
