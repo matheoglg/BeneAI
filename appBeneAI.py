@@ -22,22 +22,13 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
-
 local_css("style.css")
 
 st.markdown("""
     <div class="custom-header">
         <div class="logo-text">BeneAI</div>
-        <div style="color: white; font-size: 0.9rem; opacity: 0.7;">
-            Dashboard 
-        </div>
-        
+        <div style="color: white; font-size: 0.9rem; opacity: 0.7;">Dashboard</div>
     </div>
-    <div style="margin-top: 80px;"></div>
 """, unsafe_allow_html=True)
 
 if "agente" not in st.session_state:
@@ -46,21 +37,26 @@ if "agente" not in st.session_state:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Definimos una altura fija para evitar el scroll general de la página
+ALTURA_UI = 580
+
 col_chat, col_map = st.columns([1, 1.2], gap="large")
 
 with col_chat:
-    chat_box = st.container(height=650, border=False)
+    # Este container con altura fija permite que Streamlit haga auto-scroll hacia abajo
+    chat_box = st.container(height=ALTURA_UI, border=False)
     
     with chat_box:
-        # Bienvenida
         if not st.session_state.messages:
             st.markdown("""
-                <div class="chat-bubble ai-bubble">
-                    ¡Hola! Soy <b>BeneAI</b>, tu guía inteligente de salud. ¿En qué puedo ayudarte hoy?
+                <div class="chat-row ai-row">
+                    <div class="icon-box ai-icon">🏥</div>
+                    <div class="bubble ai-bubble">
+                        ¡Hola! Soy <b>BeneAI</b>, tu guía inteligente de salud. ¿En qué puedo ayudarte hoy?
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
 
-        # Variables auxiliares
         if "esperando_respuesta" not in st.session_state:
             st.session_state.esperando_respuesta = False
 
@@ -72,13 +68,13 @@ with col_chat:
                 return []
                 
         lista_aseguradoras = cargar_aseguradoras()
-
         st.session_state.hospitales_recomendados = []
+
         for i, message in enumerate(st.session_state.messages):
-            role_class = "user-bubble" if message["role"] == "user" else "ai-bubble"
-            
+            is_user = message["role"] == "user"
             content = message["content"]
             
+            # Procesar etiquetas ocultas
             pedir_seguro = False
             if "[PEDIR_SEGURO]" in content:
                 pedir_seguro = True
@@ -93,17 +89,34 @@ with col_chat:
                     pass
                 content = re.sub(r'\[MAPA:[^\]]+\]', '', content).strip()
 
-            # Detectar recomendación
-            if "RECOMENDACIÓN" in content.upper() or "ACCION RECOMENDADA" in content.upper():
-                 st.markdown(f"""
-                    <div class="recommendation-card">
-                        <span class="urgency-badge">Acción Recomendada</span>
-                        <div style="margin-top:10px;">{content}</div>
+            # Lógica de renderizado con ÍCONOS
+            if is_user:
+                st.markdown(f'''
+                    <div class="chat-row user-row">
+                        <div class="bubble user-bubble">{content}</div>
+                        <div class="icon-box user-icon">👤</div>
                     </div>
-                """, unsafe_allow_html=True)
+                ''', unsafe_allow_html=True)
             else:
-                st.markdown(f'<div class="chat-bubble {role_class}">{content}</div>', unsafe_allow_html=True)
+                if "RECOMENDACIÓN" in content.upper() or "ACCION RECOMENDADA" in content.upper():
+                    st.markdown(f"""
+                        <div class="chat-row ai-row">
+                            <div class="icon-box ai-icon">🏥</div>
+                            <div class="recommendation-card">
+                                <span class="urgency-badge">Acción Recomendada</span>
+                                <div style="margin-top:10px;">{content}</div>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f'''
+                        <div class="chat-row ai-row">
+                            <div class="icon-box ai-icon">🏥</div>
+                            <div class="bubble ai-bubble">{content}</div>
+                        </div>
+                    ''', unsafe_allow_html=True)
                 
+            # Dropdown de aseguradora
             if pedir_seguro and i == len(st.session_state.messages) - 1:
                 st.markdown("<br>", unsafe_allow_html=True)
                 col1, col2 = st.columns([3, 1])
@@ -111,32 +124,26 @@ with col_chat:
                     aseg_elegida = st.selectbox("Selecciona tu aseguradora:", ["No estoy seguro / Ninguna"] + lista_aseguradoras, label_visibility="collapsed")
                 with col2:
                     if st.button("Confirmar", use_container_width=True):
-                        if aseg_elegida == "No estoy seguro / Ninguna":
-                            texto = "No tengo aseguradora o no estoy seguro."
-                        else:
-                            texto = f"Pertenezco a {aseg_elegida}."
+                        texto = "No tengo aseguradora o no estoy seguro." if aseg_elegida == "No estoy seguro / Ninguna" else f"Pertenezco a {aseg_elegida}."
                         st.session_state.messages.append({"role": "user", "content": texto})
                         st.session_state.esperando_respuesta = True
                         st.rerun()
 
+    # Input del chat 
+    if prompt := st.chat_input("Describe tus síntomas o pregunta por cobertura..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.esperando_respuesta = True
+        st.rerun()
+
     if st.session_state.esperando_respuesta:
-        st.session_state.esperando_respuesta = False
+        st.session_state.esperando_respuesta = False 
         last_msg = st.session_state.messages[-1]["content"]
         with st.spinner("BeneAI está analizando..."):
             respuesta = st.session_state.agente.obtener_respuesta(last_msg, [])
             st.session_state.messages.append({"role": "assistant", "content": respuesta})
         st.rerun()
-    elif prompt := st.chat_input("Describe tus síntomas o pregunta por cobertura..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        
-        with st.spinner("BeneAI está analizando..."):
-            respuesta = st.session_state.agente.obtener_respuesta(prompt, [])
-            st.session_state.messages.append({"role": "assistant", "content": respuesta})
-        
-        st.rerun()
 
 with col_map:
-    # Cargar datos de hospitales
     @st.cache_data
     def cargar_datos_mapa():
         try:
@@ -181,10 +188,9 @@ with col_map:
         center_lat, center_lon = -2.189, -79.889
         zoom = 12
     
-    # Crear mapa con Folium (OpenStreetMap) centrado dinámicamente
-    m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom)
+    # Mapa con tiles de OpenStreetMap para visión detallada de edificios
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=zoom, tiles="OpenStreetMap")
     
-    # Añadir marcadores de hospitales
     if not df_hospitales.empty:
         for idx, row in df_hospitales.iterrows():
             popup_html = f"<b>{row.get('Hospital/Clinica', 'Hospital')}</b><br>{row.get('direccion', '')}"
@@ -192,8 +198,8 @@ with col_map:
                 location=[row['lat'], row['lon']],
                 popup=folium.Popup(popup_html, max_width=300),
                 tooltip=row.get('Hospital/Clinica', 'Hospital'),
-                icon=folium.Icon(color="red", icon="info-sign")
+                icon=folium.Icon(color="blue", icon="info-sign")
             ).add_to(m)
 
-    # Mostrar el mapa en Streamlit
-    st_folium(m, height=500, use_container_width=True, returned_objects=[])
+    # Se suma 70 de altura al mapa para compensar la barra de chat de la columna izquierda y alinearlos al fondo
+    st_folium(m, height=ALTURA_UI + 70, use_container_width=True, returned_objects=[])
