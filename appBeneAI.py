@@ -45,3 +45,10 @@ if prompt := st.chat_input("Ej: Tengo dolor de espalda y mi plan es Plata"):
             st.markdown(respuesta)
     
     st.session_state.messages.append({"role": "assistant", "content": respuesta})
+    
+# Limpia la memoria del agente
+with st.sidebar:
+    if st.button("Reiniciar Conversación"):
+        st.session_state.messages = []
+        st.session_state.agente.historial = []  
+        st.rerun()
