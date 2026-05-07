@@ -1,0 +1,36 @@
+{
+  "planes": [
+    {
+      "nombre": "Oro",
+      "cobertura": 0.90,
+      "descripcion": "Cobertura del 90% en red preferente."
+    },
+    {
+      "nombre": "Plata",
+      "cobertura": 0.70,
+      "descripcion": "Cobertura del 70% en red preferente."
+    },
+    {
+      "nombre": "Bronce",
+      "cobertura": 0.50,
+      "descripcion": "Cobertura del 50% en red preferente."
+    }
+  ],
+  "red_hospitalaria": [
+    {
+      "nombre": "Hospital Central",
+      "especialidades": ["Cardiología", "Pediatría", "Gastroenterología"],
+      "costo_base_consulta": 120
+    },
+    {
+      "nombre": "Clínica Norte",
+      "especialidades": ["Dermatología", "Odontología", "Medicina General"],
+      "costo_base_consulta": 80
+    },
+    {
+      "nombre": "Centro Médico Sur",
+      "especialidades": ["Traumatología", "Oftalmología"],
+      "costo_base_consulta": 100
+    }
+  ]
+}
