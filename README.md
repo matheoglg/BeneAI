@@ -57,6 +57,40 @@ https://www.saludsa.com/personas/todos-los-planes-medicos
 
 https://www.bmicos.com/ecuador/categoria-producto/bmi-del-ecuador/planes-vida/
 
+https://latinasalud.com.ec/producto-individual-familiar/
+
+https://latinasalud.com.ec/productos-pyme/
+
+https://latinasalud.com.ec/productos-corporativos/
+
+https://www.mediken.com.ec/
+
+https://elyex.com/clinicas-hospitales-y-centros-medicos-en-guayaquil/
+
+https://www.guiamedicos.net/public/especialidades/clinicas/clinica-san-francisco
+
+https://www.edina.com.ec/clinicas-hospitales-y-centros-medicos/hospital-clinica-kennedy/guayaquil/2061/9/238
+
+https://www.doctoranytime.ec/h/hospital-clinica-kennedy-alborada
+
+https://www.paginas-amarillas.com.ec/empresas/hospital-clinica-panamericana-sa-hosclipa/guayaquil-30916568?ad=51064757
+
+https://www.salud.gob.ec/el-hospital-de-especialidades-guayaquil-dr-abel-gilbert-ponton-trabaja-en-el-fortalecimiento-de-la-calidad-de-sus-servicios/
+
+http://www.estadisticas.med.ec/webpages/contactenos.jsp
+
+https://www.salud.gob.ec/ministra-de-salud-visito-instalaciones-del-hospital-leon-becerra-de-guayaquil/
+
+https://www.waze.com/es-419/live-map/directions/hospital-leon-becerra-av.-eloy-alfaro-delgado-2410-guayaquil?to=place.w.183568114.1835746675.291131
+
+https://es.angels-initiative.com/organizations/hospital-de-especialidades-guayaquil-dr-abel-gilbert-ponton
+
+https://www.iess.gob.ec/documents/10162/3321619/PMF+HOSPITAL+TEODORO+MALDONADO+CARBO.pdf
+
+https://ec.linkedin.com/company/hospital-cl%C3%ADnica-san-francisco-de-guayaquil
+
+https://aprofe.org.ec/paginas/ver/16
+
 Asimismo se procesó un archivo csv con información de más de 100 hospitales en la ciudad de Guayaquil, algunos datos pueden estar sujetos a ser solo de prueba, no representan un valor real o significativo en el sistema de salud de la ciudad.
 
 
