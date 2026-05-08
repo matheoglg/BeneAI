@@ -24,7 +24,9 @@ class MedAgente:
             self.df_especialidades = pd.DataFrame()
             self.df_publicos = pd.DataFrame()
         
-        self.llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview")
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-3.1-flash-lite"
+        )
 
         # Para memoria
         self.historial = []
