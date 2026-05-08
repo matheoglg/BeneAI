@@ -45,4 +45,18 @@ Configure su API Key de Google Gemini en un archivo .env: GOOGLE_API_KEY=tu_api_
 Ejecute la aplicación en el terminal: streamlit run appBeneAI.py
 
 
+Información sobre database
+
+La base de datos de BeneAI se ha construido mediante un proceso de curación y estructuración de datos abiertos y catálogos de servicios públicos y privados en Ecuador.
+
+Se llevó a cabo un proceso de Minería de Datos y ETL (Extraer, Transformar y Cargar) para normalizar la información dispersa, enriquecer las coordenadas geográficas mediante geocodificación y estandarizar las especialidades médicas para que fueran procesables por el modelo de IA.
+
+Se adjunta los links de los sitios respectivos:
+
+https://www.saludsa.com/personas/todos-los-planes-medicos
+
+https://www.bmicos.com/ecuador/categoria-producto/bmi-del-ecuador/planes-vida/
+
+Asimismo se procesó un archivo csv con información de más de 100 hospitales en la ciudad de Guayaquil, algunos datos pueden estar sujetos a ser solo de prueba, no representan un valor real o significativo en el sistema de salud de la ciudad.
+
 
