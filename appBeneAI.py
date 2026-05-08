@@ -3,6 +3,8 @@ import base64
 import pandas as pd
 import re
 import folium
+from urllib.parse import quote
+from geopy.distance import geodesic
 
 from streamlit_folium import st_folium
 from dotenv import load_dotenv
@@ -38,7 +40,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Definimos una altura fija para evitar el scroll general de la página
-ALTURA_UI = 580
+ALTURA_UI = 450
 
 col_chat, col_map = st.columns([1, 1.2], gap="large")
 
@@ -87,6 +89,7 @@ with col_chat:
                     st.session_state.hospitales_recomendados = [int(x.strip()) for x in ids_str.split(',')]
                 except Exception:
                     pass
+
                 content = re.sub(r'\[MAPA:[^\]]+\]', '', content).strip()
 
             # Lógica de renderizado con ÍCONOS
@@ -128,6 +131,8 @@ with col_chat:
                         st.session_state.messages.append({"role": "user", "content": texto})
                         st.session_state.esperando_respuesta = True
                         st.rerun()
+        
+        st.markdown('<div id="scroll-anchor"></div>', unsafe_allow_html=True)
 
     # Input del chat 
     if prompt := st.chat_input("Describe tus síntomas o pregunta por cobertura..."):
@@ -144,6 +149,9 @@ with col_chat:
         st.rerun()
 
 with col_map:
+
+    st.selectbox("Selecciona tu zona:", ["Norte", "Centro", "Sur", "Samborondón"], key="zona_usuario")
+
     @st.cache_data
     def cargar_datos_mapa():
         try:
@@ -174,18 +182,22 @@ with col_map:
 
     df_hospitales = cargar_datos_mapa()
     
+    zonas = {"Norte": (-2.10, -79.90),"Centro": (-2.19, -79.88),"Sur": (-2.28, -79.92),"Samborondón": (-2.13, -79.84)}
+        
+    ubicacion_usuario = zonas[st.session_state.zona_usuario]
     recomendados = st.session_state.get('hospitales_recomendados', [])
     if recomendados and not df_hospitales.empty:
         df_filtrado = df_hospitales[df_hospitales['hospital_id'].isin(recomendados)]
         if not df_filtrado.empty:
             df_hospitales = df_filtrado
 
-    if not df_hospitales.empty:
+    if recomendados and not df_hospitales.empty:
         center_lat = df_hospitales['lat'].mean()
         center_lon = df_hospitales['lon'].mean()
-        zoom = 14 if recomendados else 12
+        zoom = 13
+
     else:
-        center_lat, center_lon = -2.189, -79.889
+        center_lat, center_lon = ubicacion_usuario
         zoom = 12
     
     # Mapa con tiles de OpenStreetMap para visión detallada de edificios
@@ -193,13 +205,82 @@ with col_map:
     
     if not df_hospitales.empty:
         for idx, row in df_hospitales.iterrows():
-            popup_html = f"<b>{row.get('Hospital/Clinica', 'Hospital')}</b><br>{row.get('direccion', '')}"
+            # Coordenadas limpias
+            lat = float(row['lat'])
+            lon = float(row['lon'])
+
+            distancia = geodesic(ubicacion_usuario, (lat, lon)).km
+            if distancia < 2:
+                categoria_distancia = "🟢 Cercano"
+                color_marker = "green"
+
+            elif distancia < 5:
+                categoria_distancia = "🟡 Medio"
+                color_marker = "orange"
+
+            else:
+                categoria_distancia = "🔴 Lejano"
+                color_marker = "red"
+
+            nombre_hosp = row.get('Hospital/Clinica', 'Hospital')
+            direccion = row.get('direccion', 'Dirección no disponible')
+            
+            destino = quote(f"{lat},{lon}")
+
+            # Enlace google maps
+            google_maps_url = (f"https://www.google.com/maps/dir/?api=1"f"&destination={destino}"f"&travelmode=driving")
+
+            popup_html = f"""
+                <div style="font-family: sans-serif; min-width: 150px;">
+                    <b style="color: #0066ff;">{nombre_hosp}</b><br>
+                    <p style="font-size: 0.85rem; margin: 5px 0;">{direccion}</p>
+                    <p style="font-size: 0.85rem; margin: 5px 0;">{categoria_distancia} ({distancia:.1f} km)</p>
+                    <a href="{google_maps_url}" target="_blank" 
+                    style="display: inline-block; padding: 5px 10px; background-color: #0066ff; 
+                            color: white; text-decoration: none; border-radius: 4px; font-size: 0.8rem;">
+                        🚗 Cómo llegar
+                    </a>
+                </div>
+            """
             folium.Marker(
-                location=[row['lat'], row['lon']],
+                location=[lat, lon],
                 popup=folium.Popup(popup_html, max_width=300),
-                tooltip=row.get('Hospital/Clinica', 'Hospital'),
-                icon=folium.Icon(color="blue", icon="info-sign")
+                tooltip=nombre_hosp,
+                icon=folium.Icon(color=color_marker, icon="info-sign")
             ).add_to(m)
 
     # Se suma 70 de altura al mapa para compensar la barra de chat de la columna izquierda y alinearlos al fondo
-    st_folium(m, height=ALTURA_UI + 70, use_container_width=True, returned_objects=[])
+    st_folium(m, height=ALTURA_UI + 40, use_container_width=True, returned_objects=[])
+
+st.markdown("""
+<script>
+function autoScrollChat() {
+
+    const containers = window.parent.document.querySelectorAll('section.main div[data-testid="stVerticalBlock"]');
+
+    containers.forEach(container => {
+
+        if (container.scrollHeight > container.clientHeight) {
+
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    });
+}
+
+setTimeout(autoScrollChat, 300);
+setTimeout(autoScrollChat, 800);
+setTimeout(autoScrollChat, 1500);
+
+const observer = new MutationObserver(() => {
+    autoScrollChat();
+});
+
+observer.observe(window.parent.document.body, {
+    childList: true,
+    subtree: true
+});
+</script>
+""", unsafe_allow_html=True)
